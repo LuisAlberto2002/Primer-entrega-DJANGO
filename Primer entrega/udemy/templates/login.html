@@ -1,0 +1,20 @@
+<h2>Iniciar sesión</h2>
+{% load socialaccount %}
+<form method="post">
+    {% csrf_token %}
+    <p>Usuario: <input type="text" name="username"></p>
+    <p>Contraseña: <input type="password" name="password"></p>
+    <button type="submit">Entrar</button>
+</form>
+
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li style="color: red;">{{message}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<a href="{% url 'registro' %}">Crear cuenta</a>
+{% if google_provider_enabled %}
+<a href="{% provider_login_url 'google' %}">Iniciar sesión con Google</a>
+{% endif %}
