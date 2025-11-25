@@ -22,6 +22,7 @@ from .serializers import (
     LessonSerializer, EnrollmentSerializer)
 
 
+
 def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -36,7 +37,6 @@ def registro(request):
     else:
         form = RegistroForm()
     return render(request, 'usuarios/registro.html', {'form': form})
-
 
 def iniciar_sesion(request):
     # Detect whether a Google SocialApp is configured for allauth so the
@@ -67,7 +67,10 @@ def iniciar_sesion(request):
 
 @login_required
 def perfil(request):
-    return render(request, 'usuarios/perfil.html')
+    user = request.user
+    enrollments = Enrollment.objects.filter(student = user)
+    courses = Course.objects.filter(id__in = enrollments.values_list('course_id', flat=True))
+    return render(request, 'usuarios/perfil.html',{'courses':courses})
 
 
 def cerrar_sesion(request):
@@ -168,7 +171,46 @@ def list_courses_ajax(request):
     return JsonResponse({'error': 'bad request'}, status=400)
 
 @login_required
-def inscribir_curso(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST':
-        data = json.loads(request.body)
+def inscribir_curso(request, course_id):
+    """Enroll the current user in a course"""
+    course = get_object_or_404(Course, id=course_id)
+    
+    # Check if user is already enrolled
+    enrollment, deleted = Enrollment.objects.delete()
+    
+    if deleted:
+        messages.success(request, f'Te has desinscrito exitosamente')
+    else:
+        messages.info(request, f'No estabas asignado al curso')
+    
+    return redirect('home')
+
+@login_required
+def inscripcion(request,course_id):
+    course = get_object_or_404(Course,id=course_id)
+
+    if Enrollment.objects.filter(student=request.user, course=course).exists():
+        messages.info(request, "Ya estás inscrito en este curso.")
+        return redirect('/perfil/')
+    Enrollment.objects.create(
+        student=request.user,
+        course=course,
+        status='active',
+        rol_course='student'
+    )
+    messages.success(request, "Te has inscrito en el curso.")
+    return redirect('/perfil/')
+
+
+def course_info(request,course_id):
+    lessons = Lesson.objects.filter(course_id=course_id)
+    return render(request, 'usuarios/cursos.html', {'lessons':lessons})
+
+def lesson_test(request):
+    return render(request, 'usuarios/lesson_view.html')
+
+
+    
+    
+    
         

@@ -6,38 +6,59 @@
     <title>Perfil de Usuario</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 flex items-center justify-center text-white">
 
     <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-full max-w-lg p-8 text-center">
+
         <div class="flex flex-col items-center space-y-4">
             <img 
                 src="https://api.dicebear.com/8.x/identicon/svg?seed={{ request.user.username }}" 
                 alt="Avatar" 
                 class="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-md"
             />
-            <h2 class="text-3xl font-bold">Bienvenido, <span class="text-indigo-400">{{ request.user.username }}</span></h2>
+
+            <h2 class="text-3xl font-bold">
+                Bienvenido, <span class="text-indigo-400">{{ request.user.username }}</span>
+            </h2>
             
             {% if request.user.is_staff %}
-            <p class="bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full text-sm font-medium">
-                Rol: Administrador interno
-            </p>
+                <p class="bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full text-sm font-medium">
+                    Rol: Administrador interno
+                </p>
             {% else %}
-            <p class="bg-gray-500/20 text-gray-300 px-3 py-1 rounded-full text-sm font-medium">
-                Rol: Usuario normal
-            </p>
+                <p class="bg-gray-500/20 text-gray-300 px-3 py-1 rounded-full text-sm font-medium">
+                    Rol: Usuario normal
+                </p>
             {% endif %}
 
-            <div class="mt-6 space-y-3 w-full">
-                <a href="{% url 'logout' %}" 
-                   class="block w-full bg-red-600 hover:bg-red-700 transition-colors duration-200 py-2.5 rounded-lg font-semibold shadow-lg">
-                   Cerrar sesión
-                </a>
+            <!-- Nueva sección: Cursos del usuario -->
+            <div class="w-full mt-8 text-left">
+                <h3 class="text-xl font-semibold mb-3 text-indigo-300">Tus cursos</h3>
 
-                <a href="{% url 'home' %}" 
-                   class="block w-full bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 py-2.5 rounded-lg font-semibold shadow-lg">
-                   Volver al inicio
+                {% if courses %}
+                    <ul class="space-y-3">
+                        {% for course in courses %}
+                            <li class="bg-white/10 border border-white/10 rounded-lg px-4 py-3 shadow-sm hover:bg-white/20 transition">
+                                <p class="text-lg font-medium">{{ course.course_name }}</p>
+                                <p class="text-gray-300 text-sm">{{ course.num_lessons }} lecciones</p>
+                                <a href="/cursos/{{ course.id }}"><Button>Ir</Button></a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-gray-400 italic">Aún no estás inscrito en ningún curso.</p>
+                {% endif %}
+            </div>
+
+            <!-- Botón de logout -->
+            <div class="mt-6 w-full">
+                <a href="{% url 'logout' %}" 
+                   class="bg-red-500/20 text-red-300 hover:bg-red-500/30 transition px-4 py-2 rounded-lg w-full inline-block font-semibold">
+                    Cerrar sesión
                 </a>
             </div>
+
         </div>
     </div>
 

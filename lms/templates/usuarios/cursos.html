@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} Curso {% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6">
+    <a href="/"><button><-</button></a>
+    <h2 class="text-2xl font-semibold mb-4">Cursos</h2>
+    {% if lessons and lessons|length > 0 %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for lesson in lessons %}
+        <div class="border rounded p-4 shadow-sm bg-white">
+            {% if lesson.thumbnail %}
+            <img src="{{ lesson.thumbnail.url }}" alt="{{ lesson.lesson_name }}" class="w-full h-32 object-cover rounded" />
+            {% endif %}
+            <h3 class="mt-2 font-medium" style="color: black;">Lesson: {{ lesson.lesson_name }}</h3>
+            <p class="text-sm text-gray-600">Category: {{ lesson.category }}</p>
+            <p class="text-sm text-gray-600">Description: {{ lesson.description }}</p>
+            <div class="mt-3 flex items-center justify-between">
+    
+                <a href="lesson_test/" class="text-blue-600 text-sm">take</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No hay cursos disponibles.</p>
+    {% endif %}
+</div>
+<script>
+    fetch("{% url 'list_courses_ajax' %}", {
+        method: "GET",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.courses);
+            // Aquí actualizar la tabla en el DOM con los cursos
+        })
+        .catch(error => console.error('Error:', error));
+</script>
+{% endblock %}
