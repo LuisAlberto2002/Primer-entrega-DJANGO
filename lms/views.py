@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegistroForm
+from .forms import RegistroForm, CommentForm
 from django.http import JsonResponse
 import json
 
@@ -203,14 +203,24 @@ def inscripcion(request,course_id):
 
 
 def course_info(request,course_id):
+    course = Course.objects.get(id=course_id)
     lessons = Lesson.objects.filter(course_id=course_id)
-    return render(request, 'usuarios/cursos.html', {'lessons':lessons})
+    comments = Comments.objects.filter(course_id=course_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.course = course
+            comment.save()
+            messages.success(
+                request, 'Comentario guardado exitosamente')
+            return redirect('curso', course_id=course.id)  
+    else:
+        form = CommentForm()
+
+    return render(request, 'usuarios/cursos.html', {'lessons':lessons, 'comments':comments, 'course':course, 'form': form})
 
 def lesson_test(request):
     return render(request, 'usuarios/lesson_view.html')
 
-
-    
-    
-    
         
